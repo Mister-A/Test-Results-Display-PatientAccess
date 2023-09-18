@@ -43,21 +43,27 @@ namespace TestResultsDisplay
 
                     string resultsOutput = "";
 
+                    //Step through and display results / build results string
                     foreach (var Test in Tests)
                     {
+                        Color resultColor = Color.Black;
+                        Font headingFont = new Font("Arial", 12);
+                        Font subheadingFont = new Font("Arial", 11);
+                        Font bodyFont = new Font("Arial", 10);
+                        char pageBreak = (char)12;
 
                         resultsOutput += Test.Key.TestGroup + "\r\n";
-                        resultsWindow.AppendText(Test.Key.TestGroup, true);
+                        resultsWindow.AppendText(Test.Key.TestGroup, resultColor, headingFont, true);
                         foreach (var Lines in Test)
                         {
                             //Parse NormalRange
                             double[] NormalRange = GetMinMax(Lines.First().NormalRange);
 
                             resultsOutput += "\t" + Lines.Key.Test + "(Normal: " + Lines.First().NormalRange + ")" + "\r\n";
-                            resultsWindow.AppendText("\t" + Lines.Key.Test + "(Normal: " + Lines.First().NormalRange + ")", true);
+                            resultsWindow.AppendText("\t" + Lines.Key.Test + "(Normal: " + Lines.First().NormalRange + ")", resultColor, subheadingFont, true);
                             foreach (var Line in Lines)
                             {
-                                Color resultColor = Color.Black;
+                                
                                 if (NormalRange != null)
                                 {
                                     if (NormalRange[0] == -1)
@@ -70,7 +76,7 @@ namespace TestResultsDisplay
                                         double NumericResult = double.Parse(Regex.Match(Line.Result, @"\d+\.*\d*").Value);
                                         if (NumericResult > NormalRange[0] && NumericResult < NormalRange[1])
                                         {
-                                            resultColor = Color.Black;
+                                            resultColor = Color.Green;
                                         }
                                         else if (NumericResult == NormalRange[0] || NumericResult == NormalRange[1])
                                         {
@@ -83,7 +89,7 @@ namespace TestResultsDisplay
                                     }
                                 }
                                 resultsOutput += "\t\t" + Line.Date + " - " + Line.Result + "\r\n";
-                                resultsWindow.AppendText("\t\t" + Line.Date + " - " + Line.Result, resultColor, true);
+                                resultsWindow.AppendText("\t\t" + Line.Date + " - " + Line.Result, resultColor, bodyFont, true);
 
                                 resultColor = Color.Black;
                             }
@@ -152,12 +158,27 @@ namespace TestResultsDisplay
         }
     }
 
+    /// <summary>
+    /// RichTextBox Extensions to allow easier colour and font changes while appending
+    /// </summary>
     public static class RichTextBoxExtensions
     {
         public static void AppendText(this RichTextBox box, string text, Color color, bool addNewLine = true)
         {
             box.SuspendLayout();
             box.SelectionColor = color;
+            box.AppendText(addNewLine
+                ? $"{text}{Environment.NewLine}"
+                : text);
+            box.ScrollToCaret();
+            box.ResumeLayout();
+        }
+
+        public static void AppendText(this RichTextBox box, string text, Color color, Font font, bool addNewLine = true)
+        {
+            box.SuspendLayout();
+            box.SelectionColor = color;
+            box.SelectionFont = font;   
             box.AppendText(addNewLine
                 ? $"{text}{Environment.NewLine}"
                 : text);
