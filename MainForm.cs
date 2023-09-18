@@ -43,14 +43,23 @@ namespace TestResultsDisplay
 
                     string resultsOutput = "";
 
+                    Color resultColor = Color.Black;
+                    Font headingFont = new Font("Arial", 12);
+                    Font subheadingFont = new Font("Arial", 11);
+                    Font bodyFont = new Font("Arial", 10);
+                    char pageBreak = (char)12; //Might be useful but only if I can work out where the page breaks should go!
+
+                    //Write the header
+                    resultsOutput += "Summary test results, parsed from Patient Access XML results, by Test Results Display by Andrew Aldridge (c) 2023 (andrew@consultme.org)\r\n";
+                    resultsOutput += "Processed: " + DateTime.Now.ToString();
+                    resultsOutput += "Patient: " + ImportedRecords.Source.User.Name + " (d.o.b.: " + ImportedRecords.Source.User.DateOfBirth + ") - NHS ref: " + ImportedRecords.Source.User.Identifiers.PatientIdentifier.Value + "\r\n";
+                    resultsWindow.AppendText("Summary test results, parsed from Patient Access XML results, by Test Results Display by Andrew Aldridge (c) 2023 (andrew@consultme.org)\r\n");
+                    resultsWindow.AppendText("Processed: " + DateTime.Now.ToString() + "\r\n\r\n");
+                    resultsWindow.AppendText("Patient: " + ImportedRecords.Source.User.Name + " (d.o.b.: " + ImportedRecords.Source.User.DateOfBirth + ") - NHS ref: " + ImportedRecords.Source.User.Identifiers.PatientIdentifier.Value + "\r\n", resultColor, headingFont, true);
                     //Step through and display results / build results string
                     foreach (var Test in Tests)
                     {
-                        Color resultColor = Color.Black;
-                        Font headingFont = new Font("Arial", 12);
-                        Font subheadingFont = new Font("Arial", 11);
-                        Font bodyFont = new Font("Arial", 10);
-                        char pageBreak = (char)12;
+                        
 
                         resultsOutput += Test.Key.TestGroup + "\r\n";
                         resultsWindow.AppendText(Test.Key.TestGroup, resultColor, headingFont, true);
@@ -96,8 +105,7 @@ namespace TestResultsDisplay
                             resultsOutput += "\r\n";
                             resultsWindow.AppendText("\r\n");
                         }
-                        resultsOutput += "\r\n";
-                        resultsWindow.AppendText("\r\n");
+
                     }
 
                     string outputFileName = AppDomain.CurrentDomain.BaseDirectory + "/results.txt";
